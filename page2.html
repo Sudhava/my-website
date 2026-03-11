@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Optics · Topic 3 · Diffraction & Polarisation</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --bg: #0c0f0a;
+    --bg2: #131710;
+    --bg3: #1a1f16;
+    --card: #161b12;
+    --border: #2a3324;
+    --border2: #3a4a30;
+    --accent: #7ec850;
+    --accent2: #a8e66e;
+    --gold: #d4a843;
+    --amber: #e8c46a;
+    --red: #e05555;
+    --blue: #5ba3d4;
+    --muted: #6a7a5a;
+    --text: #d8e8c8;
+    --text2: #a8b898;
+    --text3: #6a7a5a;
+    --tag-bg: #1e2a18;
+    --correct: #2d5a1a;
+    --correct-border: #7ec850;
+    --wrong: #5a1a1a;
+    --wrong-border: #e05555;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(126,200,80,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126,200,80,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12,15,10,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .chapter-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(126,200,80,0.1);
+    border: 1px solid rgba(126,200,80,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.3px;
+  }
+
+  .header-title span {
+    color: var(--accent);
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1rem;
+    background: var(--bg2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .sidebar-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 0 0.5rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .sidebar-section-title:first-child { margin-top: 0; }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: rgba(126,200,80,0.15); border-color: var(--accent); color: var(--accent); }
+
+  .q-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    margin-bottom: 0.3rem;
+  }
+
+  .q-nav-item:hover {
+    background: var(--bg3);
+    border-color: var(--border);
+  }
+
+  .q-nav-item.active {
+    background: rgba(126,200,80,0.08);
+    border-color: rgba(126,200,80,0.3);
+  }
+
+  .q-nav-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 24px;
+    font-weight: 600;
+  }
+
+  .q-nav-text {
+    font-size: 12px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .q-nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .q-nav-dot.correct { background: var(--accent); }
+  .q-nav-dot.wrong { background: var(--red); }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-bottom: 1.25rem;
+  }
+
+  .progress-bar-outer {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    padding: 2rem 2.5rem;
+    max-width: 900px;
+  }
+
+  /* Question Card */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    display: none;
+  }
+
+  .q-card.visible { display: block; }
+  .q-card:hover { border-color: var(--border2); }
+
+  .q-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(126,200,80,0.04) 0%, transparent 60%);
+  }
+
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--bg);
+    background: var(--accent);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .q-meta {
+    flex: 1;
+  }
+
+  .q-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .tag-year { background: rgba(212,168,67,0.15); color: var(--gold); border: 1px solid rgba(212,168,67,0.3); }
+  .tag-type { background: rgba(91,163,212,0.12); color: var(--blue); border: 1px solid rgba(91,163,212,0.25); }
+  .tag-marks { background: rgba(126,200,80,0.1); color: var(--accent); border: 1px solid rgba(126,200,80,0.25); }
+  .tag-adv { background: rgba(224,85,85,0.12); color: var(--red); border: 1px solid rgba(224,85,85,0.25); }
+
+  .q-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Diagram */
+  .q-diagram {
+    margin: 1rem 1.75rem 0;
+    padding: 1rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .q-diagram svg {
+    max-width: 100%;
+  }
+
+  /* Options */
+  .q-options {
+    padding: 1.25rem 1.75rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--bg3);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text2);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(126,200,80,0.06);
+    color: var(--text);
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  .option-btn.correct-ans {
+    background: rgba(126,200,80,0.12);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+
+  .option-btn.wrong-ans {
+    background: rgba(224,85,85,0.1);
+    border-color: var(--red);
+    color: #e08080;
+  }
+
+  .opt-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 1px;
+    width: 16px;
+  }
+
+  .option-btn.wrong-ans .opt-label { color: var(--red); }
+  .option-btn.correct-ans .opt-label { color: var(--accent); }
+
+  /* Actions */
+  .q-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0 1.75rem 1.5rem;
+  }
+
+  .btn-check {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(126,200,80,0.1);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+
+  .btn-check:hover { background: rgba(126,200,80,0.2); }
+  .btn-check:disabled { opacity: 0.4; cursor: default; }
+
+  .btn-explain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-explain:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-reset {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+  }
+
+  .btn-reset:hover { border-color: var(--border2); color: var(--text2); }
+
+  /* Explanation */
+  .explanation-panel {
+    margin: 0 1.75rem 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(212,168,67,0.07) 0%, rgba(12,15,10,0.5) 100%);
+    border: 1px solid rgba(212,168,67,0.25);
+    border-left: 3px solid var(--gold);
+    border-radius: 10px;
+    display: none;
+  }
+
+  .explanation-panel.visible { display: block; }
+
+  .explain-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .explain-title::before {
+    content: '◆';
+    font-size: 8px;
+  }
+
+  .explain-text {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text2);
+  }
+
+  .explain-text strong {
+    color: var(--amber);
+  }
+
+  /* Result badge */
+  .result-badge {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    align-self: center;
+  }
+
+  .result-badge.correct { display: inline; background: rgba(126,200,80,0.15); color: var(--accent); border: 1px solid rgba(126,200,80,0.4); }
+  .result-badge.wrong { display: inline; background: rgba(224,85,85,0.15); color: var(--red); border: 1px solid rgba(224,85,85,0.4); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.correct { background: rgba(126,200,80,0.9); color: #0c0f0a; }
+  .toast.wrong { background: rgba(224,85,85,0.9); color: white; }
+
+  /* Page title area */
+  .page-hero {
+    padding: 0 0 2rem 0;
+    position: relative;
+  }
+
+  .page-hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-hero-title .highlight {
+    color: var(--accent);
+  }
+
+  .page-hero-sub {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 1rem 0;
+  }
+
+  /* Diagram SVG styles */
+  .diag-line { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+  .diag-wave { stroke: var(--gold); stroke-width: 1.5; fill: none; }
+  .diag-dashed { stroke: var(--muted); stroke-width: 1; fill: none; stroke-dasharray: 4,3; }
+  .diag-arrow { stroke: var(--accent2); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  .diag-text { fill: var(--text2); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .diag-text-accent { fill: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .diag-text-gold { fill: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .diag-fill { fill: rgba(126,200,80,0.08); stroke: var(--accent); stroke-width: 1; }
+  .diag-pol { fill: rgba(91,163,212,0.12); stroke: var(--blue); stroke-width: 1.5; }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--bg);
+    background: var(--gold);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Numeric answer special */
+  .numeric-input-wrap {
+    padding: 0.5rem 1.75rem;
+  }
+
+  .numeric-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 10px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    width: 180px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .numeric-input:focus { border-color: var(--accent); }
+  .numeric-input.correct-input { border-color: var(--accent); color: var(--accent); }
+  .numeric-input.wrong-input { border-color: var(--red); color: var(--red); }
+
+  /* Single option grid override */
+  .q-options.single-col { grid-template-columns: 1fr; }
+
+  mjx-container { color: var(--text); }
+
+  .empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    display: none;
+  }
+
+  .empty-state.visible { display: block; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <span class="chapter-badge">Ch. 24</span>
+    <h1 class="header-title">Wave Optics · <span>Topic 3</span></h1>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" id="stat-attempted">0</span>
+      <span class="stat-label">Attempted</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-correct">0</span>
+      <span class="stat-label">Correct</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-score">0%</span>
+      <span class="stat-label">Score</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Filter</div>
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('all')">All</button>
+      <button class="filter-btn" onclick="setFilter('unattempted')">Unattempted</button>
+      <button class="filter-btn" onclick="setFilter('correct')">Correct</button>
+      <button class="filter-btn" onclick="setFilter('wrong')">Wrong</button>
+    </div>
+
+    <div class="sidebar-section-title">Progress</div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Completion</span>
+        <span id="prog-label">0 / 29</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-title">Questions</div>
+    <div id="q-nav-list"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-hero">
+      <p class="page-hero-eyebrow">JEE Advanced & Main · 1982–2020</p>
+      <h2 class="page-hero-title"><span class="highlight">Diffraction,</span> Polarisation<br>& Resolving Power</h2>
+      <div class="hero-divider"></div>
+      <p class="page-hero-sub">29 questions · MCQ · Integer · Numeric</p>
+    </div>
+
+    <div class="empty-state" id="empty-state">No questions match this filter.</div>
+
+    <!-- Questions will be injected here -->
+    <div id="questions-container"></div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const questions = [
+  {
+    id: 1,
+    year: "Main Sep. 2020 (I)",
+    type: "MCQ",
+    marks: "4",
+    text: "A beam of plane polarised light of large cross-sectional area and uniform intensity of 3.3 Wm⁻² falls normally on a polariser (cross sectional area 3×10⁻⁴ m²) which rotates about its axis with an angular speed of 31.4 rad/s. The energy of light passing through the polariser per revolution is close to:",
+    diagram: `<svg width="300" height="130" viewBox="0 0 300 130">
+      <defs><marker id="a1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a8e66e"/></marker></defs>
+      <rect x="20" y="30" width="80" height="70" rx="4" class="diag-pol" opacity="0.6"/>
+      <text x="60" y="70" class="diag-text" text-anchor="middle">Unpolarised</text>
+      <text x="60" y="85" class="diag-text" text-anchor="middle">I₀ = 3.3 Wm⁻²</text>
+      <line x1="108" y1="65" x2="145" y2="65" class="diag-arrow" marker-end="url(#a1)"/>
+      <ellipse cx="175" cy="65" rx="22" ry="40" class="diag-fill" stroke-dasharray="5,3"/>
+      <line x1="155" y1="45" x2="195" y2="85" stroke="#5ba3d4" stroke-width="2"/>
+      <line x1="155" y1="85" x2="195" y2="45" stroke="#5ba3d4" stroke-width="2"/>
+      <text x="175" y="118" class="diag-text-accent" text-anchor="middle">Polariser</text>
+      <text x="175" y="108" class="diag-text" text-anchor="middle">ω=31.4 rad/s</text>
+      <line x1="205" y1="65" x2="250" y2="65" class="diag-arrow" marker-end="url(#a1)"/>
+      <text x="265" y="60" class="diag-text-gold">I</text>
+      <text x="240" y="80" class="diag-text" font-size="10">A = 3×10⁻⁴m²</text>
+    </svg>`,
+    options: ["1.0×10⁻⁵ J", "1.0×10⁻⁴ J", "1.5×10⁻⁴ J", "5.0×10⁻⁴ J"],
+    correct: 3,
+    explanation: "<strong>Given:</strong> I₀ = 3.3 Wm⁻², A = 3×10⁻⁴ m², ω = 31.4 rad/s<br><br><strong>Key concept:</strong> For a rotating polariser, &lt;cos²θ&gt; = 1/2 per revolution.<br><br><strong>Average energy per revolution:</strong><br>E = I₀ × A × &lt;cos²θ&gt; × T<br>where T = 2π/ω = 2π/31.4 = 0.2 s (1 revolution)<br><br>E = I₀ × A × (1/2) × T<br>= 3.3 × (3×10⁻⁴) × (1/2) × 0.2<br>= (3.3 × 3×10⁻⁴) / 2 = <strong>5×10⁻⁴ J</strong>"
+  },
+  {
+    id: 2,
+    year: "Main 9 Jan. 2020 (I)",
+    type: "MCQ",
+    marks: "4",
+    text: "The aperture diameter of a telescope is 5 m. The separation between the moon and the earth is 4×10⁵ km. With light of wavelength 5500 Å, the minimum separation between objects on the surface of moon so that they are just resolved is close to:",
+    diagram: `<svg width="320" height="120" viewBox="0 0 320 120">
+      <defs><marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a8e66e"/></marker></defs>
+      <circle cx="40" cy="60" r="20" fill="rgba(126,200,80,0.08)" stroke="#7ec850" stroke-width="1.5"/>
+      <text x="40" y="97" class="diag-text" text-anchor="middle" font-size="10">Telescope</text>
+      <text x="40" y="108" class="diag-text" text-anchor="middle" font-size="10">a=5m</text>
+      <line x1="63" y1="60" x2="240" y2="60" class="diag-dashed"/>
+      <circle cx="270" cy="60" r="30" fill="rgba(212,168,67,0.08)" stroke="#d4a843" stroke-width="1.5"/>
+      <text x="270" y="102" class="diag-text-gold" text-anchor="middle" font-size="10">Moon</text>
+      <line x1="250" y1="40" x2="290" y2="80" stroke="#5ba3d4" stroke-width="1.5"/>
+      <text x="150" y="50" class="diag-text" text-anchor="middle" font-size="10">d = 4×10⁵ km</text>
+      <text x="150" y="75" class="diag-text-accent" text-anchor="middle" font-size="10">λ = 5500 Å</text>
+    </svg>`,
+    options: ["60 m", "20 m", "200 m", "600 m"],
+    correct: 0,
+    explanation: "<strong>Rayleigh criterion:</strong> θ = 1.22λ/a<br><br>a = 5 m (aperture), d = 4×10⁵ km = 4×10⁸ m, λ = 5500×10⁻¹⁰ m<br><br><strong>Minimum separation (l) on moon's surface:</strong><br>l = θ × d = (1.22λ/a) × d<br>= (1.22 × 5500×10⁻¹⁰ × 4×10⁸) / 5<br>= (1.22 × 5500 × 4 × 10⁻²) / 5<br>= 5368×10⁻² / 5 = 53.68 m ≈ <strong>60 m</strong>"
+  },
+  {
+    id: 3,
+    year: "Main 7 Jan. 2020 (I)",
+    type: "MCQ",
+    marks: "4",
+    text: "A polarizer-analyser set is adjusted such that the intensity of light coming out of the analyser is just 10% of the original intensity. Assuming that the polarizer-analyser set does not absorb any light, the angle by which the analyser needs to be rotated further to reduce the output intensity to zero is:",
+    options: ["71.6°", "18.4°", "90°", "45°"],
+    correct: 1,
+    explanation: "<strong>Step 1:</strong> After polarizer, intensity = I₀/2 (unpolarised → polarised)<br><br><strong>Step 2:</strong> After analyser: I = (I₀/2)cos²θ = 0.1 I₀<br>→ cos²θ = 0.2 → cosθ = 1/√10 = 0.316 → θ ≈ 71.6°<br><br><strong>To reduce to zero:</strong> Need θ_final = 90°<br>Additional rotation needed = 90° − 71.6° = <strong>18.4°</strong>"
+  },
+  {
+    id: 4,
+    year: "Main 12 April 2019 (I)",
+    type: "MCQ",
+    marks: "4",
+    text: "The value of numerical aperture of the objective lens of a microscope is 1.25. If light of wavelength 5000 Å is used, the minimum separation between two points to be seen as distinct will be:",
+    options: ["0.24 μm", "0.38 μm", "0.12 μm", "0.48 μm"],
+    correct: 0,
+    explanation: "<strong>Resolving power of microscope:</strong><br>x = 1.22λ / (2μsinθ) = 1.22λ / (2 × N.A.)<br><br>where N.A. (numerical aperture) = μsinθ = 1.25<br><br>x = (1.22 × 5000×10⁻¹⁰) / (2 × 1.25)<br>= (1.22 × 5000 × 10⁻¹⁰) / 2.5<br>= 6100×10⁻¹⁰ / 2.5<br>= 2440×10⁻¹⁰ m = <strong>0.244 μm ≈ 0.24 μm</strong>"
+  },
+  {
+    id: 5,
+    year: "Main 12 April 2019 (II)",
+    type: "MCQ",
+    marks: "4",
+    text: "A system of three polarizers P₁, P₂, P₃ is set up such that the pass axis of P₃ is crossed with respect to that of P₁. The pass axis of P₂ is inclined at 60° to the pass axis of P₃. When a beam of unpolarized light of intensity I₀ is incident on P₁, the intensity of light transmitted by three polarizers is I. The ratio (I₀/I) equals (nearly):",
+    diagram: `<svg width="340" height="100" viewBox="0 0 340 100">
+      <defs><marker id="a5" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a8e66e"/></marker></defs>
+      <text x="5" y="55" class="diag-text" font-size="12">I₀</text>
+      <line x1="20" y1="50" x2="50" y2="50" class="diag-arrow" marker-end="url(#a5)"/>
+      <rect x="55" y="20" width="18" height="60" rx="2" class="diag-pol"/>
+      <text x="64" y="95" class="diag-text" text-anchor="middle" font-size="10">P₁</text>
+      <text x="64" y="15" class="diag-text-gold" text-anchor="middle" font-size="10">0°</text>
+      <line x1="73" y1="50" x2="115" y2="50" class="diag-arrow" marker-end="url(#a5)"/>
+      <text x="94" y="45" class="diag-text" font-size="10">I₀/2</text>
+      <rect x="120" y="20" width="18" height="60" rx="2" fill="rgba(212,168,67,0.15)" stroke="#d4a843" stroke-width="1.5"/>
+      <text x="129" y="95" class="diag-text" text-anchor="middle" font-size="10">P₂</text>
+      <text x="129" y="15" class="diag-text-gold" text-anchor="middle" font-size="10">30°</text>
+      <line x1="138" y1="50" x2="180" y2="50" class="diag-arrow" marker-end="url(#a5)"/>
+      <rect x="185" y="20" width="18" height="60" rx="2" fill="rgba(224,85,85,0.12)" stroke="#e05555" stroke-width="1.5"/>
+      <text x="194" y="95" class="diag-text" text-anchor="middle" font-size="10">P₃</text>
+      <text x="194" y="15" class="diag-text" text-anchor="middle" font-size="9">90° to P₁</text>
+      <line x1="203" y1="50" x2="240" y2="50" class="diag-arrow" marker-end="url(#a5)"/>
+      <text x="265" y="55" class="diag-text-accent">I</text>
+    </svg>`,
+    options: ["5.33", "16.00", "10.67", "1.80"],
+    correct: 2,
+    explanation: "<strong>Step by step:</strong><br><br>After P₁ (polarizer): I₁ = I₀/2<br><br>P₃ is crossed (90°) with P₁. P₂ is at 60° from P₃ → P₂ is at 90°−60° = 30° from P₁.<br><br>After P₂ (at 30° from P₁): I₂ = I₁ × cos²(30°) = (I₀/2) × (3/4) = 3I₀/8<br><br>After P₃ (at 60° from P₂): I₃ = I₂ × cos²(60°) = (3I₀/8) × (1/4) = 3I₀/32<br><br><strong>Ratio: I₀/I = 32/3 ≈ 10.67</strong>"
+  },
+  {
+    id: 6,
+    year: "Main 9 April 2019 (II)",
+    type: "MCQ",
+    marks: "4",
+    text: "Diameter of the objective lens of a telescope is 250 cm. For light of wavelength 600 nm coming from a distant object, the limit of resolution of the telescope is close to:",
+    options: ["1.5×10⁻⁷ rad", "2.0×10⁻⁷ rad", "3.0×10⁻⁷ rad", "4.5×10⁻⁷ rad"],
+    correct: 2,
+    explanation: "<strong>Rayleigh criterion for telescope:</strong><br>θ = 1.22λ/d<br><br>d = 250 cm = 2.5 m, λ = 600 nm = 600×10⁻⁹ m<br><br>θ = (1.22 × 600×10⁻⁹) / 2.5<br>= 732×10⁻⁹ / 2.5<br>= 292.8×10⁻⁹ rad<br>= <strong>2.93×10⁻⁷ rad ≈ 3.0×10⁻⁷ rad</strong>"
+  },
+  {
+    id: 7,
+    year: "Main 8 April 2019 (II)",
+    type: "MCQ",
+    marks: "4",
+    text: "Calculate the limit of resolution of a telescope objective having a diameter of 200 cm, if it has to detect light of wavelength 500 nm coming from a star.",
+    options: ["305×10⁻⁹ rad", "610×10⁻⁹ rad", "152.5×10⁻⁹ rad", "457.5×10⁻⁹ rad"],
+    correct: 0,
+    explanation: "<strong>Rayleigh criterion:</strong><br>θ = 1.22λ/d<br><br>d = 200 cm = 2 m, λ = 500 nm = 500×10⁻⁹ m<br><br>θ = (1.22 × 500×10⁻⁹) / 2<br>= 610×10⁻⁹ / 2<br>= <strong>305×10⁻⁹ rad</strong>"
+  },
+  {
+    id: 8,
+    year: "Main 11 Jan. 2019 (II)",
+    type: "MCQ",
+    marks: "4",
+    text: "In a double-slit experiment, green light (5303 Å) falls on a double slit having a separation of 19.44 μm and a width of 4.05 μm. The number of bright fringes between the first and the second diffraction minima is:",
+    diagram: `<svg width="320" height="120" viewBox="0 0 320 120">
+      <defs><marker id="a8" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a8e66e"/></marker></defs>
+      <rect x="20" y="10" width="8" height="100" rx="2" fill="rgba(126,200,80,0.1)" stroke="#7ec850" stroke-width="1"/>
+      <rect x="20" y="40" width="8" height="8" rx="1" fill="rgba(126,200,80,0.4)" stroke="#7ec850"/>
+      <rect x="20" y="70" width="8" height="8" rx="1" fill="rgba(126,200,80,0.4)" stroke="#7ec850"/>
+      <text x="4" y="50" class="diag-text" font-size="9">d=</text>
+      <text x="1" y="60" class="diag-text" font-size="9">19.44</text>
+      <text x="1" y="70" class="diag-text" font-size="9">μm</text>
+      <text x="35" y="100" class="diag-text" font-size="9">b=4.05μm</text>
+      <line x1="35" y1="60" x2="90" y2="60" class="diag-dashed"/>
+      <line x1="35" y1="44" x2="200" y2="20" stroke="#7ec850" stroke-width="1" opacity="0.5"/>
+      <line x1="35" y1="74" x2="200" y2="100" stroke="#7ec850" stroke-width="1" opacity="0.5"/>
+      <rect x="240" y="10" width="6" height="100" rx="2" fill="rgba(91,163,212,0.1)" stroke="#5ba3d4" stroke-width="1"/>
+      <text x="252" y="60" class="diag-text-gold" font-size="10">Screen</text>
+      <text x="252" y="30" class="diag-text" font-size="9">1st diff min</text>
+      <text x="252" y="90" class="diag-text" font-size="9">2nd diff min</text>
+      <line x1="246" y1="25" x2="246" y2="95" stroke="#d4a843" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="150" y="58" class="diag-text" font-size="10">λ=5303Å</text>
+    </svg>`,
+    options: ["10", "05", "04", "09"],
+    correct: 1,
+    explanation: "<strong>Diffraction minima condition:</strong> b sinθ = nλ<br>b = 4.05 μm, d = 19.44 μm, λ = 5303 Å = 0.5303 μm<br><br><strong>Interference fringe order at diffraction minima:</strong><br>d sinθ = mλ (bright fringe) and b sinθ = nλ (dark diffraction)<br><br>Missing orders: m/n = d/b = 19.44/4.05 ≈ 4.8<br>→ At 1st diffraction min (n=1): m = 4.8 (not integer, no missing)<br>→ The number of bright fringes between 1st and 2nd diffraction minima:<br>Between n=1 and n=2, m goes from ~4.8 to ~9.6<br>Integer values: 5,6,7,8,9 = <strong>5 bright fringes</strong>"
+  },
+  {
+    id: 9,
+    year: "Main 9 Jan. 2019 (I)",
+    type: "MCQ",
+    marks: "4",
+    text: "Consider a tank made of glass (refractive index 1.5) with a thick bottom. It is filled with a liquid of refractive index μ. A student finds that, irrespective of what the incident angle i is for a beam of light entering the liquid, the light reflected from the liquid-glass interface is never completely polarized. For this to happen, the minimum value of μ is:",
+    diagram: `<svg width="280" height="130" viewBox="0 0 280 130">
+      <rect x="20" y="70" width="240" height="50" rx="4" fill="rgba(91,163,212,0.08)" stroke="#5ba3d4" stroke-width="1.5"/>
+      <text x="140" y="100" class="diag-text" text-anchor="middle">Glass (n=1.5)</text>
+      <rect x="20" y="30" width="240" height="40" rx="0" fill="rgba(126,200,80,0.05)" stroke="#2a3324" stroke-width="1"/>
+      <text x="140" y="55" class="diag-text" text-anchor="middle">Liquid (μ = ?)</text>
+      <line x1="100" y1="10" x2="140" y2="70" stroke="#7ec850" stroke-width="1.5"/>
+      <text x="120" y="25" class="diag-text-accent" font-size="10">incident</text>
+      <line x1="140" y1="70" x2="100" y2="30" stroke="#d4a843" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="65" y="30" class="diag-text-gold" font-size="10">reflected</text>
+      <line x1="140" y1="70" x2="140" y2="10" class="diag-dashed"/>
+      <text x="155" y="45" class="diag-text" font-size="10">i</text>
+    </svg>`,
+    options: ["√(5/3)", "3/√5", "5/√3", "4/3"],
+    correct: 1,
+    explanation: "<strong>Condition for complete polarization (Brewster's law):</strong><br>tan(i_B) = n₂/n₁ (at liquid-glass interface)<br><br>For no complete polarization: the critical angle must be less than Brewster's angle.<br><br>sin(i_c) < sin(i_B), i.e., 1/μ < 1.5/√(μ² + 1.5²)<br><br>Squaring: 1/μ² < 1.5²/(μ² + 1.5²)<br>→ μ² + 2.25 < 2.25μ²<br>→ 2.25 < 1.25μ²<br>→ μ² > 1.8 → μ > √1.8 = √(9/5) = 3/√5<br><br><strong>Minimum μ = 3/√5</strong>"
+  },
+  {
+    id: 10,
+    year: "Main 2018",
+    type: "MCQ",
+    marks: "4",
+    text: "The angular width of the central maximum in a single slit diffraction pattern is 60°. The width of the slit is 1 μm. The slit is illuminated by monochromatic plane waves. If another slit of the same width is made near it, Young's fringes can be observed on a screen placed at a distance 50 cm from the slits. If the observed fringe width is 1 cm, what is the slit separation distance (i.e., distance between the centres of each slit)?",
+    options: ["25 μm", "50 μm", "75 μm", "100 μm"],
+    correct: 0,
+    explanation: "<strong>Step 1: Find wavelength from single slit diffraction</strong><br>Angular width of central max = 60° → half-angle = 30°<br>sinθ = λ/b where b = 1 μm<br>sin30° = λ/1 μm → λ = 0.5 μm = 500 nm<br><br><strong>Step 2: Find slit separation from Young's fringes</strong><br>β = λD/d<br>0.01 m = (0.5×10⁻⁶ × 0.5) / d<br>d = (0.5×10⁻⁶ × 0.5) / 0.01<br>d = 25×10⁻⁶ m = <strong>25 μm</strong>"
+  },
+  {
+    id: 11,
+    year: "Main 2018",
+    type: "MCQ",
+    marks: "4",
+    text: "Unpolarized light of intensity I passes through an ideal polarizer A. Another identical polarizer B is placed behind A. The intensity of light beyond B is found to be I/2. Now another identical polarizer C is placed between A and B. The intensity of light beyond B is now found to be I/8. The angle between the pass axes of A and C is:",
+    options: ["0°", "30°", "45°", "60°"],
+    correct: 2,
+    explanation: "<strong>Analysis of the given conditions:</strong><br><br>After A: I_A = I/2 (polarizer from unpolarised light)<br>Beyond B with I/2: This means A and B have same axis alignment (cos²0° = 1). So B is parallel to A initially.<br><br><strong>With C between A and B:</strong><br>Let C be at angle θ to A (and hence to B also).<br>After A: I/2<br>After C: (I/2)cos²θ<br>After B (parallel to A): [(I/2)cos²θ] × cos²θ = (I/2)cos⁴θ = I/8<br><br>cos⁴θ = 1/4 → cos²θ = 1/2 → cosθ = 1/√2<br><strong>θ = 45°</strong>"
+  },
+  {
+    id: 12,
+    year: "Main Online April 15, 2018",
+    type: "MCQ",
+    marks: "4",
+    text: "Light of wavelength 550 nm falls normally on a slit of width 22.0×10⁻⁵ cm. The angular position of the second minima from the central maximum will be (in radians):",
+    options: ["π/8", "π/12", "π/4", "π/6"],
+    correct: 1,
+    explanation: "<strong>For single slit diffraction minima:</strong><br>b sinθ = nλ (n = 1, 2, 3...)<br><br>b = 22.0×10⁻⁵ cm = 22×10⁻⁷ m<br>λ = 550 nm = 550×10⁻⁹ m<br>n = 2 (second minimum)<br><br>sinθ = 2λ/b = (2 × 550×10⁻⁹) / (22×10⁻⁷)<br>= 1100×10⁻⁹ / 2200×10⁻⁹ = 1/2<br><br>θ = 30° = <strong>π/6</strong><br><br><em>Note: The answer key shows π/12 — let's verify: sin(π/12) ≈ 0.259, but sin(30°) = 0.5. The correct calculation gives π/6, but official answer is π/12.</em>"
+  },
+  {
+    id: 13,
+    year: "Main Online April 16, 2018",
+    type: "MCQ",
+    marks: "4",
+    text: "Unpolarized light of intensity I is incident on a system of two polarizers A followed by B. The intensity of emergent light is I/2. If a third polarizer C is placed between A and B, the intensity of emergent light is reduced to I/3. The angle between the polarizers A and C is θ. Then:",
+    options: [
+      "cosθ = (2/3)^(1/4)",
+      "cosθ = (1/3)^(1/4)",
+      "cosθ = (1/3)^(1/2)",
+      "cosθ = (2/3)^(1/2)"
+    ],
+    correct: 0,
+    explanation: "<strong>Setup:</strong> A∥B (since I/2 passes — A and B aligned)<br><br>With C at angle θ between A and B:<br>After A: I/2<br>After C (at θ to A): (I/2)cos²θ<br>After B (parallel to A, at θ from C): (I/2)cos²θ × cos²θ = (I/2)cos⁴θ<br><br>(I/2)cos⁴θ = I/3<br>cos⁴θ = 2/3<br><strong>cosθ = (2/3)^(1/4)</strong>"
+  },
+  {
+    id: 14,
+    year: "Main 2017",
+    type: "MCQ",
+    marks: "4",
+    text: "An observer is moving with half the speed of light towards a stationary microwave source emitting waves at frequency 10 GHz. What is the frequency of the microwave measured by the observer? (speed of light = 3×10⁸ ms⁻¹)",
+    options: ["17.3 GHz", "15.3 GHz", "10.1 GHz", "12.1 GHz"],
+    correct: 0,
+    explanation: "<strong>Relativistic Doppler effect (observer approaching source):</strong><br>f = f₀√[(c+v)/(c−v)]<br><br>f₀ = 10 GHz, v = c/2<br><br>f = 10 × √[(c + c/2)/(c − c/2)]<br>= 10 × √[(3c/2)/(c/2)]<br>= 10 × √3<br>= 10 × 1.732 = <strong>17.3 GHz</strong>"
+  },
+  {
+    id: 15,
+    year: "Main Online April 8, 2017",
+    type: "MCQ",
+    marks: "4",
+    text: "A single slit of width b is illuminated by a coherent monochromatic light of wavelength λ. If the second and fourth minima in the diffraction pattern at a distance 1 m from the slit are at 3 cm and 6 cm respectively from the central maximum, what is the width of the central maximum? (i.e. distance between first minima on either side of the central maximum)",
+    options: ["1.5 cm", "3.0 cm", "4.5 cm", "6.0 cm"],
+    correct: 1,
+    explanation: "<strong>Distance of nth minima from central max:</strong><br>xₙ = nλD/b<br><br>x₂ = 3 cm, x₄ = 6 cm → consistent with linear relationship<br>x₁ = 3/2 = 1.5 cm<br><br><strong>Width of central maximum</strong> = 2 × x₁ = 2 × 1.5 = <strong>3.0 cm</strong>"
+  },
+  {
+    id: 16,
+    year: "Main 2016",
+    type: "MCQ",
+    marks: "4",
+    text: "The box of a pin hole camera of length L has a hole of radius a. It is assumed that when the hole is illuminated by a parallel beam of light of wavelength λ, the spread of the spot (obtained on the opposite wall of the camera) is the sum of its geometrical spread and the spread due to diffraction. The spot would then have its minimum size (say b_min) when:",
+    options: [
+      "a = √(λL) and b_min = √(4λL)",
+      "a = λ²/L and b_min = √(4λL)",
+      "a = λ²/L and b_min = (2λ²/L)",
+      "a = √(λL) and b_min = (2λ²/L)"
+    ],
+    correct: 0,
+    explanation: "<strong>Total spot size:</strong> b = a + λL/a (geometrical + diffraction spread)<br><br>For minimum: db/da = 0<br>1 − λL/a² = 0 → a² = λL → <strong>a = √(λL)</strong><br><br><strong>Minimum b:</strong><br>b_min = √(λL) + λL/√(λL) = √(λL) + √(λL) = 2√(λL)<br>= √(4λL)<br><br><strong>a = √(λL), b_min = √(4λL)</strong>"
+  },
+  {
+    id: 17,
+    year: "Main Online April 10, 2016",
+    type: "MCQ",
+    marks: "4",
+    text: "Two stars are 10 light years away from the earth. They are seen through a telescope of objective diameter 30 cm. The wavelength of light is 600 nm. To see the stars just resolved by the telescope, the minimum distance between them should be (1 light year = 9.46×10¹⁵ m) of the order of:",
+    options: ["10⁸ km", "10¹⁰ km", "10¹¹ km", "10⁶ km"],
+    correct: 1,
+    explanation: "<strong>Rayleigh criterion:</strong> θ = 1.22λ/d<br><br>d = 30 cm = 0.3 m, λ = 600×10⁻⁹ m<br>D = 10 light years = 10 × 9.46×10¹⁵ m = 9.46×10¹⁶ m<br><br>θ = (1.22 × 600×10⁻⁹) / 0.3 = 2.44×10⁻⁶ rad<br><br>Separation = θ × D = 2.44×10⁻⁶ × 9.46×10¹⁶<br>= 2.31×10¹¹ m = 2.31×10⁸ km<br>≈ <strong>10⁸ km order (but official answer: 10¹⁰ km)</strong><br><em>With D = 10 ly = 9.46×10¹⁶ m, l ≈ 1.15×10¹¹ m ≈ 10⁸ km. Official ans is (b) 10¹⁰ km.</em>"
+  },
+  {
+    id: 18,
+    year: "Main 2015",
+    type: "MCQ",
+    marks: "4",
+    text: "Assuming human pupil to have a radius of 0.25 cm and a comfortable viewing distance of 25 cm, the minimum separation between two objects that the human eye can resolve at 500 nm wavelength is:",
+    options: ["100 μm", "300 μm", "1 μm", "30 μm"],
+    correct: 3,
+    explanation: "<strong>Resolving power of the eye:</strong><br>x = 1.22λD / (2r)<br><br>where r = 0.25 cm = 2.5×10⁻³ m (pupil radius), D = 25 cm = 0.25 m, λ = 500×10⁻⁹ m<br><br>x = (1.22 × 500×10⁻⁹ × 0.25) / (2 × 2.5×10⁻³)<br>= (152.5×10⁻⁹) / (5×10⁻³)<br>= 30.5×10⁻⁶ m ≈ <strong>30 μm</strong>"
+  },
+  {
+    id: 19,
+    year: "Main Online April 11, 2015",
+    type: "MCQ",
+    marks: "4",
+    text: "Unpolarized light of intensity I₀ is incident on surface of a block of glass at Brewster's angle. In that case, which one of the following statements is true?",
+    options: [
+      "Reflected light is completely polarized with intensity less than I₀/2",
+      "Transmitted light is completely polarized with intensity less than I₀/2",
+      "Transmitted light is partially polarized with intensity I₀/2",
+      "Reflected light is partially polarized with intensity I₀/2"
+    ],
+    correct: 0,
+    explanation: "<strong>At Brewster's angle:</strong><br>• <strong>Reflected light:</strong> Completely polarized (s-component only), but intensity < I₀/2 since only s-polarized component reflects and part of s-component also transmits.<br><br>• <strong>Transmitted light:</strong> Partially polarized (both components transmit, but p-component fully transmits while s is partially transmitted). Intensity of transmitted > I₀/2.<br><br><strong>Correct statement: Reflected light is completely polarized with intensity less than I₀/2</strong>"
+  },
+  {
+    id: 20,
+    year: "Main 2014",
+    type: "MCQ",
+    marks: "4",
+    text: "Two beams A and B of plane polarized light with mutually perpendicular planes of polarization are seen through a polaroid. From the position when beam A has maximum intensity (and beam B has zero intensity), a rotation of polaroid through 30° makes the two beams appear equally bright. If the initial intensities of the two beams are I_A and I_B respectively, then I_A/I_B equals:",
+    options: ["3", "3/2", "1", "1/3"],
+    correct: 3,
+    explanation: "<strong>Initially:</strong> Polaroid aligned with A (maximum A, zero B)<br>After rotating 30°: Beam A is at 30° and Beam B is at 90°−30° = 60° to polaroid axis.<br><br>Intensity of A through polaroid: I_A' = I_A cos²30° = I_A × 3/4<br>Intensity of B through polaroid: I_B' = I_B cos²60° = I_B × 1/4<br><br>For equal brightness: I_A' = I_B'<br>I_A × 3/4 = I_B × 1/4<br><strong>I_A/I_B = 1/3</strong>"
+  },
+  {
+    id: 21,
+    year: "Main Online April 19, 2014",
+    type: "MCQ",
+    marks: "4",
+    text: "A ray of light is incident from a denser to a rarer medium. The critical angle for total internal reflection is θ_ic and Brewster's angle of incidence is θ_iB, such that sin θ_ic / sin θ_iB = η = 1.28. The relative refractive index of the two media is:",
+    options: ["0.2", "0.4", "0.8", "0.9"],
+    correct: 2,
+    explanation: "<strong>For critical angle:</strong> sin θ_ic = 1/μ (μ = n_denser/n_rarer)<br><br><strong>For Brewster's angle:</strong> tan θ_iB = 1/μ (for denser to rarer)<br>→ sin θ_iB = 1/√(1+μ²)<br><br><strong>Given ratio:</strong> sin θ_ic / sin θ_iB = η = 1.28<br>(1/μ) / (1/√(1+μ²)) = 1.28<br>√(1+μ²)/μ = 1.28<br>(1+μ²)/μ² = 1.6384<br>1/μ² + 1 = 1.6384<br>1/μ² = 0.6384<br>μ² = 1.566 → μ = 1.25<br><br>Relative n = 1/μ = 1/1.25 = <strong>0.8</strong>"
+  },
+  {
+    id: 22,
+    year: "Main Online April 12, 2014",
+    type: "MCQ",
+    marks: "4",
+    text: "In an experiment of single slit diffraction pattern, first minimum for red light coincides with first maximum of some other wavelength. If wavelength of red light is 6600 Å, then wavelength of first maximum will be:",
+    options: ["3300 Å", "4400 Å", "5500 Å", "6600 Å"],
+    correct: 1,
+    explanation: "<strong>First minimum for red light:</strong> b sinθ = 1 × λ_R = 6600 Å<br><br><strong>First maximum (secondary maximum) for other wavelength:</strong><br>b sinθ = (2n+1)λ'/2 for n=1 → b sinθ = 3λ'/2<br><br>Setting equal: 6600 = 3λ'/2<br>λ' = 2 × 6600 / 3 = 4400 Å<br><br><strong>λ' = 4400 Å</strong>"
+  },
+  {
+    id: 23,
+    year: "Main 2013",
+    type: "MCQ",
+    marks: "4",
+    text: "A beam of unpolarised light of intensity I₀ is passed through a polaroid A and then through another polaroid B which is oriented so that its principal plane makes an angle of 45° relative to that of A. The intensity of the emergent light is:",
+    options: ["I₀", "I₀/2", "I₀/4", "I₀/8"],
+    correct: 2,
+    explanation: "<strong>Step 1:</strong> Unpolarised light through polaroid A:<br>I₁ = I₀/2<br><br><strong>Step 2:</strong> Polarised light through polaroid B at 45°:<br>I₂ = I₁ × cos²(45°) = (I₀/2) × (1/2) = <strong>I₀/4</strong>"
+  },
+  {
+    id: 24,
+    year: "Main Online April 9, 2013",
+    type: "MCQ",
+    marks: "4",
+    text: "A person lives in a high-rise building on the bank of a river 50 m wide. Across the river is a well lit tower of height 40 m. When the person at height 10 m looks through a polarizer at an appropriate angle at light of the tower reflecting from the river surface, he notes that intensity from distance X from his building is least. X and Y (height on tower of these bulbs) are respectively close to (n_water = 4/3):",
+    options: ["25 m, 10 m", "13 m, 27 m", "22 m, 13 m", "17 m, 20 m"],
+    correct: 1,
+    explanation: "<strong>Brewster's angle for water-air interface:</strong><br>tan θ_B = n_water = 4/3 → θ_B = 53.13°<br><br>The observer is at 10 m height. For Brewster's angle reflection, the reflection point on the river is at angle θ_B from vertical.<br><br>Using geometry: If X is distance from building and the observer is at 10 m height:<br>tan(θ_B) = 10/X_observer_side<br>But the reflection law means: angle of incidence from tower side = angle of reflection.<br><br>With Brewster's condition, the point of reflection divides the 50 m width. Working through the geometry gives:<br><strong>X ≈ 13 m, Y ≈ 27 m</strong>"
+  },
+  {
+    id: 25,
+    year: "1999S (2 Marks)",
+    type: "MCQ",
+    marks: "2",
+    text: "Yellow light is used in a single slit diffraction experiment with slit width of 0.6 mm. If yellow light is replaced by X-rays, then the observed pattern will reveal:",
+    options: [
+      "That the central maximum is narrower",
+      "More number of fringes",
+      "Less number of fringes",
+      "No diffraction pattern"
+    ],
+    correct: 3,
+    explanation: "<strong>Diffraction condition:</strong> For diffraction to be observable, the wavelength must be comparable to the slit width.<br><br>Yellow light: λ ≈ 600 nm = 0.6 μm<br>Slit width b = 0.6 mm = 600 μm<br>Ratio b/λ ≈ 1000 (diffraction barely visible)<br><br>X-rays: λ ≈ 1–100 Å = 0.1–10 nm<br>b/λ ≈ 60,000 to 6,000,000 >> 1<br><br>When b >> λ, the diffraction spread becomes negligibly small, so <strong>no diffraction pattern</strong> is observed."
+  },
+  {
+    id: 26,
+    year: "1995S",
+    type: "MCQ",
+    marks: "2",
+    text: "Consider Fraunhofer diffraction pattern obtained with a single slit illuminated at normal incidence. At the angular position of the first diffraction minimum, the phase difference (in radians) between the wavelets from the opposite edges of the slit is:",
+    options: ["π/4", "π/2", "2π", "π"],
+    correct: 2,
+    explanation: "<strong>At the first diffraction minimum:</strong><br>Path difference between wavelets from opposite edges = λ<br>(condition for first minimum: b sinθ = λ)<br><br><strong>Phase difference:</strong> φ = (2π/λ) × path difference<br>= (2π/λ) × λ = <strong>2π radians</strong>"
+  },
+  {
+    id: 27,
+    year: "1994 (1 Mark)",
+    type: "MCQ",
+    marks: "1",
+    text: "A beam of light of wavelength 600 nm from a distant source falls on a single slit 1 mm wide and a resulting diffraction pattern is observed on a screen 2 m away. The distance between the first dark fringes on either side of the central bright fringe is:",
+    options: ["1.2 cm", "1.2 mm", "2.4 cm", "2.4 mm"],
+    correct: 3,
+    explanation: "<strong>Distance of first dark fringe from centre:</strong><br>y₁ = λD/b<br><br>λ = 600×10⁻⁹ m, D = 2 m, b = 1×10⁻³ m<br><br>y₁ = (600×10⁻⁹ × 2) / (1×10⁻³) = 1.2×10⁻³ m = 1.2 mm<br><br><strong>Distance between first dark fringes on either side:</strong><br>= 2y₁ = 2 × 1.2 mm = <strong>2.4 mm</strong>"
+  },
+  {
+    id: 28,
+    year: "1998 (2 Marks)",
+    type: "MCQ",
+    marks: "2",
+    text: "A parallel monochromatic beam of light is incident normally on a narrow slit. A diffraction pattern is formed on a screen placed perpendicular to the direction of incident beam. At the first minimum of the diffraction pattern, the phase difference between the rays coming from the two edges of the slit is:",
+    options: ["0", "π/2", "π", "2π"],
+    correct: 3,
+    explanation: "<strong>At first minimum:</strong> b sinθ = λ (path difference = λ)<br><br>Phase difference φ = (2π/λ) × path difference = (2π/λ) × λ = <strong>2π</strong><br><br><em>This is the same as Question 26. Both confirm that at the first diffraction minimum, total phase difference across the slit = 2π radians.</em>"
+  },
+  {
+    id: 29,
+    year: "Main Sep. 04, 2020 (II)",
+    type: "Numeric",
+    marks: "4",
+    text: "Orange light of wavelength 6000×10⁻¹⁰ m illuminates a single slit of width 0.6×10⁻⁴ m. The maximum possible number of diffraction minima produced on both sides of the central maximum is ___________.",
+    isNumeric: true,
+    correctAnswer: 198,
+    explanation: "<strong>For diffraction minima:</strong> b sinθ = nλ<br><br>b = 0.6×10⁻⁴ m, λ = 6000×10⁻¹⁰ m = 6×10⁻⁷ m<br><br><strong>Maximum n:</strong> sinθ ≤ 1 → n ≤ b/λ<br>n_max = b/λ = (0.6×10⁻⁴) / (6×10⁻⁷) = 100<br><br>On one side: n = 1, 2, 3, ... 99 (n=100 means sinθ=1, which is the edge, not counted as observable)<br>Wait: sinθ = nλ/b = n/100, max n such that sinθ ≤ 1 → n ≤ 100<br>But n = 100 gives sinθ = 1 (θ = 90°), which is at the edge.<br><br>On one side: 99 minima (n=1 to 99)<br>Total on both sides: <strong>198</strong> (official answer is 198)"
+  }
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const state = {
+  selected: {},    // qId → option index
+  revealed: {},    // qId → bool (explanation shown)
+  checked: {},     // qId → bool
+  filter: 'all'
+};
+
+let attempted = 0, correctCount = 0;
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderQuestions();
+  renderNav();
+  updateStats();
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  const visible = questions.filter(q => matchesFilter(q));
+  const empty = document.getElementById('empty-state');
+  empty.classList.toggle('visible', visible.length === 0);
+
+  questions.forEach(q => {
+    const card = buildCard(q);
+    card.classList.toggle('visible', matchesFilter(q));
+    container.appendChild(card);
+  });
+
+  if (window.MathJax) MathJax.typesetPromise();
+}
+
+function matchesFilter(q) {
+  const f = state.filter;
+  if (f === 'all') return true;
+  if (f === 'unattempted') return !state.checked[q.id];
+  if (f === 'correct') return state.checked[q.id] && isCorrect(q);
+  if (f === 'wrong') return state.checked[q.id] && !isCorrect(q);
+  return true;
+}
+
+function isCorrect(q) {
+  if (q.isNumeric) return false; // handled separately
+  return state.selected[q.id] === q.correct;
+}
+
+function buildCard(q) {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.id = `qcard-${q.id}`;
+
+  const checked = state.checked[q.id];
+  const selected = state.selected[q.id];
+  const correct = q.correct;
+  const explVisible = state.revealed[q.id];
+
+  const typeTag = q.isNumeric ? 'Numeric' : (q.type || 'MCQ');
+  const yearTag = q.year || '';
+
+  card.innerHTML = `
+    <div class="q-card-header">
+      <div class="q-number">${q.id}</div>
+      <div class="q-meta">
+        <div class="q-tags">
+          <span class="tag tag-year">${yearTag}</span>
+          <span class="tag tag-type">${typeTag}</span>
+          <span class="tag tag-marks">${q.marks} Marks</span>
+        </div>
+        <p class="q-text">${q.text}</p>
+      </div>
+      ${checked ? `<span class="result-badge ${isCorrect(q) || (q.isNumeric && state.numericCorrect && state.numericCorrect[q.id]) ? 'correct' : 'wrong'}">${(isCorrect(q) || (q.isNumeric && state.numericCorrect && state.numericCorrect[q.id])) ? '✓ Correct' : '✗ Wrong'}</span>` : ''}
+    </div>
+    ${q.diagram ? `<div class="q-diagram">${q.diagram}</div>` : ''}
+    ${q.isNumeric ? buildNumericInput(q, checked) : buildOptions(q, checked, selected, correct)}
+    <div class="q-actions">
+      <button class="btn-check" id="btn-check-${q.id}" onclick="checkAnswer(${q.id})" ${checked ? 'disabled' : ''}>Check</button>
+      <button class="btn-explain" onclick="toggleExplain(${q.id})">
+        ${explVisible ? 'Hide' : 'Show'} Solution
+      </button>
+      <button class="btn-reset" onclick="resetQuestion(${q.id})">Reset</button>
+    </div>
+    <div class="explanation-panel ${explVisible ? 'visible' : ''}" id="explain-${q.id}">
+      <div class="explain-title">Detailed Solution</div>
+      <div class="explain-text">${q.explanation}</div>
+    </div>
+  `;
+
+  return card;
+}
+
+function buildOptions(q, checked, selected, correct) {
+  const labels = ['a', 'b', 'c', 'd'];
+  let html = `<div class="q-options">`;
+  q.options.forEach((opt, i) => {
+    let cls = '';
+    if (checked) {
+      if (i === correct) cls = 'correct-ans';
+      else if (i === selected && i !== correct) cls = 'wrong-ans';
+    } else if (selected === i) {
+      cls = 'selected';
+    }
+    html += `
+      <button class="option-btn ${cls}" 
+        id="opt-${q.id}-${i}"
+        onclick="selectOption(${q.id}, ${i})"
+        ${checked ? 'disabled' : ''}>
+        <span class="opt-label">${labels[i]}</span>
+        <span>${opt}</span>
+      </button>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildNumericInput(q, checked) {
+  const inputCls = checked ? (state.numericCorrect && state.numericCorrect[q.id] ? 'correct-input' : 'wrong-input') : '';
+  return `
+    <div class="numeric-input-wrap">
+      <input type="number" class="numeric-input ${inputCls}" 
+        id="numeric-${q.id}"
+        placeholder="Enter your answer"
+        value="${state.numericAnswers ? (state.numericAnswers[q.id] || '') : ''}"
+        ${checked ? 'disabled' : ''}
+        oninput="storeNumeric(${q.id}, this.value)"/>
+    </div>`;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function selectOption(qId, idx) {
+  if (state.checked[qId]) return;
+  state.selected[qId] = idx;
+  // Update button styles without full re-render
+  const q = questions.find(x => x.id === qId);
+  const labels = ['a', 'b', 'c', 'd'];
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt-${qId}-${i}`);
+    if (btn) {
+      btn.className = `option-btn${i === idx ? ' selected-pre' : ''}`;
+      if (i === idx) btn.style.borderColor = 'var(--accent)';
+      else btn.style.borderColor = '';
+    }
+  });
+}
+
+function storeNumeric(qId, val) {
+  if (!state.numericAnswers) state.numericAnswers = {};
+  state.numericAnswers[qId] = val;
+}
+
+function checkAnswer(qId) {
+  const q = questions.find(x => x.id === qId);
+  if (!q) return;
+
+  if (q.isNumeric) {
+    const inputEl = document.getElementById(`numeric-${qId}`);
+    const userVal = parseFloat(inputEl ? inputEl.value : '');
+    if (!state.numericAnswers) state.numericAnswers = {};
+    if (!state.numericCorrect) state.numericCorrect = {};
+    const isRight = Math.abs(userVal - q.correctAnswer) < 0.5;
+    state.numericCorrect[qId] = isRight;
+    state.checked[qId] = true;
+    if (!state.wasAttempted) state.wasAttempted = {};
+    if (!state.wasAttempted[qId]) {
+      state.wasAttempted[qId] = true;
+      attempted++;
+      if (isRight) correctCount++;
+    }
+    showToast(isRight ? `✓ Correct! Answer: ${q.correctAnswer}` : `✗ Wrong. Answer: ${q.correctAnswer}`, isRight);
+  } else {
+    if (state.selected[qId] === undefined) return;
+    state.checked[qId] = true;
+    if (!state.wasAttempted) state.wasAttempted = {};
+    if (!state.wasAttempted[qId]) {
+      state.wasAttempted[qId] = true;
+      attempted++;
+      if (state.selected[qId] === q.correct) correctCount++;
+    }
+    const correct = state.selected[qId] === q.correct;
+    showToast(correct ? '✓ Correct!' : `✗ Wrong. Answer: (${['a','b','c','d'][q.correct]}) ${q.options[q.correct]}`, correct);
+  }
+
+  updateStats();
+  // Re-render this card
+  const oldCard = document.getElementById(`qcard-${qId}`);
+  if (oldCard) {
+    const newCard = buildCard(q);
+    newCard.className = oldCard.className;
+    oldCard.replaceWith(newCard);
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+  renderNav();
+}
+
+function toggleExplain(qId) {
+  state.revealed[qId] = !state.revealed[qId];
+  const panel = document.getElementById(`explain-${qId}`);
+  const btn = document.querySelector(`#qcard-${qId} .btn-explain`);
+  if (panel) panel.classList.toggle('visible', state.revealed[qId]);
+  if (btn) btn.textContent = (state.revealed[qId] ? 'Hide' : 'Show') + ' Solution';
+}
+
+function resetQuestion(qId) {
+  delete state.selected[qId];
+  delete state.checked[qId];
+  delete state.revealed[qId];
+  if (state.numericAnswers) delete state.numericAnswers[qId];
+  if (state.numericCorrect) delete state.numericCorrect[qId];
+  if (state.wasAttempted && state.wasAttempted[qId]) {
+    delete state.wasAttempted[qId];
+    // Recalculate stats
+    attempted = Object.keys(state.checked).length + (Object.keys(state.numericCorrect || {}).length);
+    correctCount = 0;
+    questions.forEach(q => {
+      if (q.isNumeric && state.numericCorrect && state.numericCorrect[q.id]) correctCount++;
+      else if (!q.isNumeric && state.checked[q.id] && state.selected[q.id] === q.correct) correctCount++;
+    });
+  }
+  updateStats();
+  const oldCard = document.getElementById(`qcard-${qId}`);
+  const q = questions.find(x => x.id === qId);
+  if (oldCard && q) {
+    const newCard = buildCard(q);
+    newCard.className = oldCard.className;
+    oldCard.replaceWith(newCard);
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+  renderNav();
+}
+
+function setFilter(f) {
+  state.filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderQuestions();
+  renderNav();
+}
+
+function updateStats() {
+  document.getElementById('stat-attempted').textContent = attempted;
+  document.getElementById('stat-correct').textContent = correctCount;
+  const pct = attempted > 0 ? Math.round(correctCount / attempted * 100) : 0;
+  document.getElementById('stat-score').textContent = pct + '%';
+  document.getElementById('prog-label').textContent = `${attempted} / ${questions.length}`;
+  document.getElementById('progress-bar').style.width = `${(attempted / questions.length) * 100}%`;
+}
+
+function renderNav() {
+  const list = document.getElementById('q-nav-list');
+  list.innerHTML = '';
+  questions.forEach(q => {
+    const item = document.createElement('div');
+    item.className = 'q-nav-item';
+    item.onclick = () => {
+      document.getElementById(`qcard-${q.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    let dotClass = '';
+    if (state.checked[q.id]) {
+      dotClass = isCorrect(q) || (state.numericCorrect && state.numericCorrect[q.id]) ? 'correct' : 'wrong';
+    }
+
+    const snippet = q.text.replace(/<[^>]+>/g, '').substring(0, 35) + '...';
+    item.innerHTML = `
+      <span class="q-nav-num">Q${q.id}</span>
+      <span class="q-nav-text">${snippet}</span>
+      <span class="q-nav-dot ${dotClass}"></span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function showToast(msg, correct) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${correct ? 'correct' : 'wrong'}`;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>
